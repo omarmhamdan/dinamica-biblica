@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamento Confirmado — Dinâmicas Bíblicas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Anton&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--blue:#2b59c3;--blue-dark:#1e3a8a;--gold:#f4b400;--ink:#1a1f36}
+    body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+    .anton{font-family:'Anton',sans-serif}
+    .card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:44px 32px;max-width:480px;width:100%;backdrop-filter:blur(4px)}
+    .btn{display:inline-block;background:var(--gold);color:var(--ink);font-weight:800;text-decoration:none;text-transform:uppercase;letter-spacing:.04em;padding:18px 36px;border-radius:12px;font-size:1.05rem;box-shadow:0 10px 24px rgba(244,180,0,.35);transition:transform .15s}
+    .btn:hover{transform:translateY(-2px)}
+    .muted{color:#d4dffa;font-size:.9rem;line-height:1.55}
+  </style>
+
+  <!-- ════════ META PIXEL ════════ -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init','993385946435032');
+    fbq('track','PageView');
+  </script>
+
+  <!-- ════════ MICROSOFT CLARITY — troque SEU_CLARITY_ID ════════ -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "SEU_CLARITY_ID");
+  </script>
+</head>
+<body>
+  <div class="card">
+    <div style="font-size:3rem;margin-bottom:14px;">📖</div>
+    <h1 class="anton" style="font-size:2rem;text-transform:uppercase;margin-bottom:10px;" id="titulo">Confirmando seu pagamento…</h1>
+    <p class="muted" id="msg" style="margin-bottom:28px;">Aguarde um instante.</p>
+    <div id="acao"></div>
+  </div>
+
+  <script>
+  (function(){
+    var params = new URLSearchParams(location.search);
+    var paymentId = params.get('payment_id') || params.get('collection_id');
+    var pacote = params.get('external_reference') || params.get('pacote') || 'essencial';
+
+    var titulo = document.getElementById('titulo');
+    var msg    = document.getElementById('msg');
+    var acao   = document.getElementById('acao');
+
+    function erro(txt){ titulo.textContent = 'Ops…'; msg.textContent = txt; }
+
+    if (!paymentId) { erro('Não encontramos o seu pagamento. Se você pagou, verifique seu e-mail do Mercado Pago.'); return; }
+
+    var tentativas = 0;
+    var MAX = 45; // ~3 min (45 x 4s) — tempo de sobra pro Pix aprovar
+
+    function liberar(url){
+      titulo.textContent = 'Pagamento confirmado! 🎉';
+      msg.innerHTML = 'Acesso liberado. Clique abaixo para baixar suas dinâmicas.';
+      acao.innerHTML = '<a class="btn" href="' + url + '" target="_blank" rel="noopener">📥 Acessar meu material</a>'
+                     + '<div style="margin-top:18px;padding:14px;background:#fff7e6;border:1px solid #f4d58a;border-radius:10px;text-align:left;">'
+                     +   '<p style="font-size:.86rem;color:#33405a;line-height:1.5;margin:0;">📧 <b>Também enviamos o acesso para o seu e-mail.</b> Não encontrou na caixa de entrada? <b>Confira a pasta de Spam / Lixo Eletrônico / Promoções</b> e marque como “não é spam”.</p>'
+                     + '</div>'
+                     + '<p class="muted" style="margin-top:12px;">Salve este link. Qualquer dúvida, responda o e-mail da compra.</p>';
+      if (window.fbq) fbq('track','Purchase', { currency:'BRL', value: (pacote === 'combo' ? 19.90 : 14.90) }, { eventID: 'purchase_' + (paymentId || '') });
+    }
+
+    // NÃO confia no status da URL (é uma foto velha). Consulta o status AO VIVO no MP,
+    // repetindo até aprovar — porque o Pix pode levar alguns segundos pra cair.
+    function checar(){
+      fetch('/api/verify?payment_id=' + encodeURIComponent(paymentId))
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if (d.approved && d.url) { liberar(d.url); return; }
+          tentativas++;
+          if (tentativas >= MAX) {
+            titulo.textContent = 'Pagamento em análise';
+            msg.textContent = 'Seu Pix ainda está sendo confirmado. Assim que cair, o acesso libera — você também recebe por e-mail. Pode deixar esta página aberta.';
+            return;
+          }
+          titulo.textContent = 'Confirmando seu pagamento…';
+          msg.textContent = 'Aguardando a confirmação (Pix leva alguns segundos). Não feche esta página.';
+          setTimeout(checar, 4000);
+        })
+        .catch(function(){
+          tentativas++;
+          if (tentativas < MAX) setTimeout(checar, 4000);
+          else erro('Erro ao confirmar o pagamento. Recarregue a página em instantes.');
+        });
+    }
+    checar();
+  })();
+  </script>
+</body></html>

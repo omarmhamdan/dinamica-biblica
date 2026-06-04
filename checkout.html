@@ -1,0 +1,320 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — Dinâmicas Bíblicas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Anton&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--blue:#2b59c3;--blue-dark:#1e3a8a;--gold:#f4b400;--ink:#1a1f36;--paper:#f6f7fb;--line:#e4e7f0;--muted:#6a7490}
+    body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);line-height:1.45}
+    .anton{font-family:'Anton',sans-serif;font-weight:400}
+    /* topo */
+    .topbar{background:var(--blue-dark);color:#fff;text-align:center;padding:10px;font-size:.82rem;font-weight:600}
+    .header{background:#fff;border-bottom:1px solid var(--line);padding:14px 20px;text-align:center}
+    .header .logo{font-family:'Anton',sans-serif;font-size:1.2rem;text-transform:uppercase;color:var(--blue-dark)}
+    /* layout */
+    .wrap{max-width:960px;margin:0 auto;padding:26px 18px 60px;display:grid;grid-template-columns:1.5fr 1fr;gap:24px;align-items:start}
+    .box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:18px}
+    .step-title{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.05rem;margin-bottom:16px}
+    .step-num{background:var(--blue);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+    label{display:block;font-size:.8rem;font-weight:700;color:#33405a;margin:10px 0 5px}
+    input{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:9px;font-size:1rem;font-family:inherit}
+    input:focus{outline:none;border-color:var(--blue)}
+    .row{display:flex;gap:12px}.row>div{flex:1}
+    /* metodo pagamento */
+    .pay-tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+    .pay-tab{border:2px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;text-align:center;font-weight:700;font-size:.92rem;transition:.15s;background:#fff}
+    .pay-tab .ic{font-size:1.4rem;display:block;margin-bottom:4px}
+    .pay-tab.active{border-color:var(--blue);background:#eef3fd;color:var(--blue-dark)}
+    /* mp secure fields */
+    .mp-field{height:46px;border:1px solid var(--line);border-radius:9px;padding:0 10px;display:flex;align-items:center}
+    .hidden{display:none!important}
+    /* botoes */
+    .btn{display:block;width:100%;border:0;border-radius:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:17px;font-size:1.05rem;cursor:pointer;font-family:inherit;background:var(--gold);color:var(--ink);box-shadow:0 10px 24px rgba(244,180,0,.35)}
+    .btn:disabled{opacity:.6;cursor:default}
+    .err{color:#c0392b;font-size:.85rem;margin-top:12px;text-align:center}
+    .secure{color:var(--muted);font-size:.78rem;text-align:center;margin-top:12px}
+    /* resumo */
+    .summary{position:sticky;top:20px}
+    .sum-prod{display:flex;gap:12px;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:14px}
+    .sum-thumb{width:54px;height:54px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
+    .sum-line{display:flex;justify-content:space-between;font-size:.9rem;margin:6px 0;color:#33405a}
+    .sum-total{display:flex;justify-content:space-between;font-weight:900;font-size:1.4rem;color:var(--blue-dark);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+    .garantia{display:flex;gap:10px;align-items:center;background:#eef3fd;border:1px solid #cdd9f5;border-radius:10px;padding:12px;margin-top:14px;font-size:.8rem;color:#33405a}
+    .selos{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:.74rem;margin-top:14px}
+    /* pix QR */
+    .qrbox{text-align:center}
+    .qrbox img{width:210px;height:210px;border:1px solid var(--line);border-radius:12px}
+    .copia{display:flex;gap:8px;margin-top:12px}
+    .copia input{font-size:.74rem}
+    .copybtn{flex-shrink:0;background:var(--blue);color:#fff;border:0;border-radius:9px;padding:0 16px;font-weight:700;cursor:pointer;font-family:inherit}
+    .status{margin-top:16px;font-weight:700;color:var(--blue-dark);text-align:center}
+    .spin{display:inline-block;width:15px;height:15px;border:3px solid #cdd9f5;border-top-color:var(--blue);border-radius:50%;animation:s 1s linear infinite;vertical-align:middle;margin-right:7px}
+    @keyframes s{to{transform:rotate(360deg)}}
+    @media(max-width:780px){
+      .wrap{grid-template-columns:1fr}
+      .summary{position:static;order:-1}
+    }
+    @media(max-width:560px){
+      .row{flex-direction:column;gap:0}
+      .topbar{font-size:.78rem}
+    }
+  </style>
+
+  <!-- META PIXEL -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init','993385946435032');fbq('track','PageView');
+  </script>
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+
+  <!-- ════════ MICROSOFT CLARITY — troque SEU_CLARITY_ID ════════ -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "SEU_CLARITY_ID");
+  </script>
+</head>
+<body>
+  <div class="topbar">🔒 Compra 100% segura · Acesso imediato após o pagamento</div>
+  <div class="header"><span class="logo">📖 Dinâmicas Bíblicas</span></div>
+
+  <form id="form-card" class="wrap">
+
+    <!-- COLUNA ESQUERDA -->
+    <div>
+      <!-- DADOS -->
+      <div class="box">
+        <div class="step-title"><span class="step-num">1</span> Seus dados</div>
+        <label for="form-checkout__cardholderName">Nome completo</label>
+        <input id="form-checkout__cardholderName" type="text" placeholder="Seu nome" autocomplete="name">
+        <div class="row">
+          <div>
+            <label for="form-checkout__cardholderEmail">E-mail (recebe o acesso)</label>
+            <input id="form-checkout__cardholderEmail" type="email" placeholder="seu@email.com" autocomplete="email">
+          </div>
+          <div>
+            <label for="form-checkout__identificationNumber">CPF</label>
+            <input id="form-checkout__identificationNumber" type="text" inputmode="numeric" placeholder="000.000.000-00">
+          </div>
+        </div>
+        <label for="form-checkout__phone">WhatsApp (com DDD)</label>
+        <input id="form-checkout__phone" type="tel" inputmode="numeric" placeholder="(11) 99999-9999" autocomplete="tel">
+        <select id="form-checkout__identificationType" class="hidden"></select>
+      </div>
+
+      <!-- PAGAMENTO -->
+      <div class="box">
+        <div class="step-title"><span class="step-num">2</span> Pagamento</div>
+
+        <div class="pay-tabs">
+          <div class="pay-tab active" id="tab-pix"><span class="ic">⚡</span>Pix</div>
+          <div class="pay-tab" id="tab-card"><span class="ic">💳</span>Cartão de crédito</div>
+        </div>
+
+        <!-- PAINEL PIX -->
+        <div id="panel-pix">
+          <div id="pix-pre">
+            <p style="font-size:.9rem;color:var(--muted);margin-bottom:4px;">Pague na hora pelo Pix. Liberação automática assim que cair.</p>
+            <button type="button" class="btn" id="btn-pix">Gerar Pix</button>
+            <p class="err hidden" id="erro-pix"></p>
+          </div>
+          <div id="pix-qr" class="qrbox hidden">
+            <p style="font-size:.9rem;margin-bottom:10px;font-weight:600;">Abra o app do banco → Pix → Pagar com QR Code</p>
+            <img id="qrimg" alt="QR Code Pix">
+            <div class="copia"><input id="copiacola" readonly><button type="button" class="copybtn" id="btncopia">Copiar</button></div>
+            <div class="status"><span class="spin"></span><span id="statustxt">Aguardando pagamento…</span></div>
+            <p style="font-size:.78rem;color:var(--muted);margin-top:12px;">Não feche esta tela. Você será redirecionado automaticamente.</p>
+          </div>
+        </div>
+
+        <!-- PAINEL CARTÃO -->
+        <div id="panel-card" class="hidden">
+          <label>Número do cartão</label>
+          <div id="form-checkout__cardNumber" class="mp-field"></div>
+          <div class="row">
+            <div>
+              <label>Validade</label>
+              <div id="form-checkout__expirationDate" class="mp-field"></div>
+            </div>
+            <div>
+              <label>CVV</label>
+              <div id="form-checkout__securityCode" class="mp-field"></div>
+            </div>
+          </div>
+          <select id="form-checkout__issuer" class="hidden"></select>
+          <select id="form-checkout__installments" class="hidden"></select>
+          <button type="submit" class="btn" id="btn-card" style="margin-top:18px;">Pagar R$ <span class="valor">0,00</span></button>
+          <p class="err hidden" id="erro-card"></p>
+          <p class="secure">🔒 Seus dados são processados de forma segura pelo Mercado Pago.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUNA DIREITA — RESUMO -->
+    <div class="summary">
+      <div class="box">
+        <div class="step-title" style="font-size:.95rem;">Resumo do pedido</div>
+        <div class="sum-prod">
+          <div class="sum-thumb">📖</div>
+          <div>
+            <div style="font-weight:700;font-size:.92rem;" id="sum-nome">—</div>
+            <div style="font-size:.78rem;color:var(--muted);">Acesso digital imediato</div>
+          </div>
+        </div>
+        <div class="sum-line"><span>Subtotal</span><span>R$ <span class="valor">0,00</span></span></div>
+        <div class="sum-total"><span>Total</span><span>R$ <span class="valor">0,00</span></span></div>
+        <div class="garantia">🛡️ <span><b>Garantia de 7 dias.</b> Não gostou, devolvemos 100%.</span></div>
+        <div class="selos"><span>🔒 SSL Seguro</span><span>⚡ Acesso imediato</span><span>💳 Mercado Pago</span></div>
+      </div>
+    </div>
+
+  </form>
+
+  <script>
+  (function(){
+    var PUBLIC_KEY = 'APP_USR-b378d6c5-ccdd-4c32-b92b-b59f0ab524e9';
+    var params = new URLSearchParams(location.search);
+    var pacote = params.get('pacote') === 'combo' ? 'combo' : 'essencial';
+    var preco  = pacote === 'combo' ? 19.90 : 14.90;
+    var nomePacote = pacote === 'combo' ? 'Pacote Completo — Dinâmicas Bíblicas + 7 Bônus' : 'Essencial — +300 Dinâmicas Bíblicas';
+    var precoStr = preco.toFixed(2).replace('.', ',');
+
+    document.getElementById('sum-nome').textContent = nomePacote;
+    [].forEach.call(document.querySelectorAll('.valor'), function(el){ el.textContent = precoStr; });
+
+    // ---- helpers ----
+    function val(id){ var e=document.getElementById(id); return e ? e.value.trim() : ''; }
+    function showErr(id, t){ var e=document.getElementById(id); e.textContent=t; e.classList.remove('hidden'); }
+    function hideErr(id){ document.getElementById(id).classList.add('hidden'); }
+    function validaDados(){
+      if (!val('form-checkout__cardholderName')) return 'Digite seu nome.';
+      var em = val('form-checkout__cardholderEmail');
+      if (!em || em.indexOf('@')<0) return 'Digite um e-mail válido.';
+      if (val('form-checkout__identificationNumber').replace(/\D/g,'').length !== 11) return 'Digite um CPF válido.';
+      if (val('form-checkout__phone').replace(/\D/g,'').length < 10) return 'Digite um WhatsApp válido com DDD.';
+      return null;
+    }
+
+    // ---- máscaras (CPF e telefone) ----
+    function mascaraCPF(v){
+      v = v.replace(/\D/g,'').slice(0,11);
+      return v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    }
+    function mascaraTel(v){
+      v = v.replace(/\D/g,'').slice(0,11);
+      if (v.length > 10) return v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3').replace(/[-\s]+$/,'');
+      return v.replace(/(\d{2})(\d{0,4})(\d{0,4})/,'($1) $2-$3').replace(/[-\s]+$/,'').replace(/\($/,'').replace(/\(\)\s$/,'');
+    }
+    var cpfInput = document.getElementById('form-checkout__identificationNumber');
+    var telInput = document.getElementById('form-checkout__phone');
+    if (cpfInput) cpfInput.addEventListener('input', function(){ this.value = mascaraCPF(this.value); });
+    if (telInput) telInput.addEventListener('input', function(){ this.value = mascaraTel(this.value); });
+
+    // ---- troca de abas ----
+    var tabPix=document.getElementById('tab-pix'), tabCard=document.getElementById('tab-card');
+    var panelPix=document.getElementById('panel-pix'), panelCard=document.getElementById('panel-card');
+    var cardFormIniciado=false;
+
+    tabPix.addEventListener('click', function(){
+      tabPix.classList.add('active'); tabCard.classList.remove('active');
+      panelPix.classList.remove('hidden'); panelCard.classList.add('hidden');
+    });
+    tabCard.addEventListener('click', function(){
+      tabCard.classList.add('active'); tabPix.classList.remove('active');
+      panelCard.classList.remove('hidden'); panelPix.classList.add('hidden');
+      if (!cardFormIniciado) { initCardForm(); cardFormIniciado=true; }
+    });
+
+    // ---- PIX ----
+    document.getElementById('btn-pix').addEventListener('click', function(){
+      hideErr('erro-pix');
+      var erro = validaDados();
+      if (erro) { showErr('erro-pix', erro); return; }
+      var btn=this; btn.disabled=true; btn.textContent='Gerando Pix…';
+      if (window.fbq) fbq('track','InitiateCheckout',{value:preco,currency:'BRL',content_name:pacote});
+
+      fetch('/api/criar-pix',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({pacote:pacote, email:val('form-checkout__cardholderEmail'), nome:val('form-checkout__cardholderName'), cpf:val('form-checkout__identificationNumber'), telefone:val('form-checkout__phone')})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(!d.id||!d.qr_code_base64){ console.error(d); btn.disabled=false; btn.textContent='Gerar Pix'; showErr('erro-pix','Não foi possível gerar o Pix. Confira os dados.'); return; }
+          document.getElementById('qrimg').src='data:image/png;base64,'+d.qr_code_base64;
+          document.getElementById('copiacola').value=d.qr_code;
+          document.getElementById('pix-pre').classList.add('hidden');
+          document.getElementById('pix-qr').classList.remove('hidden');
+          pollPix(d.id);
+        })
+        .catch(function(e){ console.error(e); btn.disabled=false; btn.textContent='Gerar Pix'; showErr('erro-pix','Erro de conexão. Tente novamente.'); });
+    });
+
+    document.getElementById('btncopia').addEventListener('click', function(){
+      var inp=document.getElementById('copiacola'); inp.select();
+      navigator.clipboard && navigator.clipboard.writeText(inp.value);
+      var b=this; b.textContent='Copiado!'; setTimeout(function(){b.textContent='Copiar';},1500);
+    });
+
+    function pollPix(id){
+      fetch('/api/verify?payment_id='+encodeURIComponent(id)).then(function(r){return r.json();}).then(function(d){
+        if(d.approved){ document.getElementById('statustxt').textContent='Aprovado! Redirecionando…'; location.href='/obrigado.html?payment_id='+id+'&external_reference='+pacote; return; }
+        setTimeout(function(){pollPix(id);},4000);
+      }).catch(function(){ setTimeout(function(){pollPix(id);},5000); });
+    }
+
+    // ---- CARTÃO (Mercado Pago cardForm) ----
+    function initCardForm(){
+      var mp = new MercadoPago(PUBLIC_KEY, { locale:'pt-BR' });
+      var cardForm = mp.cardForm({
+        amount: String(preco),
+        iframe: true,
+        form: {
+          id: 'form-card',
+          cardNumber:      { id:'form-checkout__cardNumber', placeholder:'Número do cartão' },
+          expirationDate:  { id:'form-checkout__expirationDate', placeholder:'MM/AA' },
+          securityCode:    { id:'form-checkout__securityCode', placeholder:'CVV' },
+          cardholderName:  { id:'form-checkout__cardholderName' },
+          issuer:          { id:'form-checkout__issuer' },
+          installments:    { id:'form-checkout__installments' },
+          identificationType:   { id:'form-checkout__identificationType' },
+          identificationNumber: { id:'form-checkout__identificationNumber' },
+          cardholderEmail: { id:'form-checkout__cardholderEmail' }
+        },
+        callbacks: {
+          onFormMounted: function(error){ if(error) console.warn('cardForm mount', error); },
+          onSubmit: function(event){
+            event.preventDefault();
+            hideErr('erro-card');
+            var erro = validaDados();
+            if (erro) { showErr('erro-card', erro); return; }
+            var d = cardForm.getCardFormData();
+            if (!d.token) { showErr('erro-card','Confira os dados do cartão.'); return; }
+            var btn=document.getElementById('btn-card'); btn.disabled=true; btn.textContent='Processando…';
+            if (window.fbq) fbq('track','InitiateCheckout',{value:preco,currency:'BRL',content_name:pacote});
+
+            fetch('/api/criar-cartao',{method:'POST',headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({ token:d.token, payment_method_id:d.paymentMethodId, issuer_id:d.issuerId,
+                email:d.cardholderEmail, identificationType:d.identificationType, identificationNumber:d.identificationNumber,
+                pacote:pacote, nome:val('form-checkout__cardholderName'), telefone:val('form-checkout__phone') })})
+              .then(function(r){return r.json();})
+              .then(function(resp){
+                if (resp.status==='approved' || resp.status==='in_process' || resp.status==='pending') {
+                  location.href='/obrigado.html?payment_id='+resp.id+'&external_reference='+pacote;
+                } else {
+                  console.error(resp); btn.disabled=false; btn.textContent='Pagar R$ '+precoStr;
+                  showErr('erro-card','Pagamento recusado. Verifique os dados ou tente outro cartão.');
+                }
+              })
+              .catch(function(e){ console.error(e); btn.disabled=false; btn.textContent='Pagar R$ '+precoStr; showErr('erro-card','Erro ao processar. Tente novamente.'); });
+          }
+        }
+      });
+    }
+  })();
+  </script>
+</body></html>
