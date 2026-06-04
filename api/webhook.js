@@ -89,7 +89,7 @@ function sha256(v) {
 }
 
 async function enviarCapi(p) {
-  const PIXEL_ID = '993385946435032';
+  const PIXEL_ID = process.env.META_PIXEL_ID || '993385946435032';
   const token = process.env.META_CAPI_TOKEN;
   if (!token) { console.log('[CAPI] sem META_CAPI_TOKEN'); return; }
 
