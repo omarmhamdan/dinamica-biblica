@@ -82,8 +82,8 @@
       <div style="display:inline-block; background: var(--gold); color: var(--ink); font-size:.72rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; padding:6px 16px; border-radius:100px; margin-bottom:22px;">📖 Para Quem Ensina a Bíblia às Crianças</div>
 
       <h1 class="anton" style="font-size: 3.6rem; line-height: 1.06; margin-bottom: 18px; text-transform: uppercase;">
-        <span style="color: var(--gold);">+300 Dinâmicas Bíblicas Prontas pra Aplicar</span><br>
-        É Só Abrir o PDF e Aplicar
+        <span style="color: #fff;">+300 Dinâmicas Bíblicas</span> <br><span style="color: var(--gold);">Prontas pra Aplicar</span><br>
+        É Só Abrir o PDF <br class="brd">e Aplicar
       </h1>
 
       <p style="font-size: 1.1rem; line-height: 1.55; color: #e6edfb; max-width: 460px; margin-bottom: 0;">
@@ -323,6 +323,7 @@
 
 <style>
   @media (max-width: 860px) {
+    .brd { display: none !important; }
     #hero-grid {
       grid-template-columns: 1fr !important;
       grid-template-areas: 'texttop' 'video' 'cta' !important;
@@ -337,7 +338,7 @@
   @media (max-width: 600px) {
     section { padding-top: 48px !important; padding-bottom: 48px !important; }
     .wrap { padding: 0 18px; }
-    h1.anton { font-size: 2.4rem !important; }
+    h1.anton { font-size: 2.1rem !important; }
     h2.anton { font-size: 1.9rem !important; }
     .id-grid { grid-template-columns: 1fr !important; }
     .feat-row { flex-direction: row !important; gap: 14px !important; padding: 18px 18px !important; }
