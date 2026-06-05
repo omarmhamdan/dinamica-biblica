@@ -8,9 +8,13 @@ export default async function handler(req, res) {
   // Vercel já entrega req.body como objeto; fallback caso venha string
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
-  const { pacote = 'essencial', email, nome, cpf, telefone } = body || {};
+  const { pacote = 'essencial', email, nome, cpf, telefone, fbp, fbc } = body || {};
 
   if (!email) return res.status(400).json({ error: 'email obrigatório' });
+
+  // Dados do navegador do comprador (este endpoint é chamado pelo browser) p/ CAPI
+  const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  const ua = String(req.headers['user-agent'] || '');
 
   const itens = {
     essencial: { title: '+300 Dinâmicas Bíblicas',                       price: 14.90 },
@@ -25,7 +29,7 @@ export default async function handler(req, res) {
     payment_method_id: 'pix',
     external_reference: pacote,
     notification_url: `${base}/api/webhook`,
-    metadata: { nome: nome || '', telefone: String(telefone || '').replace(/\D/g, ''), email: String(email || '').trim().toLowerCase() },
+    metadata: { nome: nome || '', telefone: String(telefone || '').replace(/\D/g, ''), email: String(email || '').trim().toLowerCase(), cpf: String(cpf || '').replace(/\D/g, ''), fbp: fbp || '', fbc: fbc || '', ip: ip, ua: ua },
     payer: {
       email: email,
       first_name: nome || undefined,

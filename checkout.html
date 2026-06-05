@@ -186,6 +186,12 @@
     var nomePacote = pacote === 'combo' ? 'Pacote Completo — Dinâmicas Bíblicas + 7 Bônus' : 'Essencial — +300 Dinâmicas Bíblicas';
     var precoStr = preco.toFixed(2).replace('.', ',');
 
+    // ---- Meta: fbp/fbc (melhora qualidade de correspondência da CAPI) ----
+    function getCookie(n){ var m=document.cookie.match('(^|;)\\s*'+n+'\\s*=\\s*([^;]+)'); return m?m.pop():''; }
+    var fbp = getCookie('_fbp');
+    var fbc = getCookie('_fbc');
+    if (!fbc) { var f = params.get('fbclid'); if (f) fbc = 'fb.1.' + Date.now() + '.' + f; }
+
     document.getElementById('sum-nome').textContent = nomePacote;
     [].forEach.call(document.querySelectorAll('.valor'), function(el){ el.textContent = precoStr; });
 
@@ -241,7 +247,7 @@
       if (window.fbq) fbq('track','InitiateCheckout',{value:preco,currency:'BRL',content_name:pacote});
 
       fetch('/api/criar-pix',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({pacote:pacote, email:val('form-checkout__cardholderEmail'), nome:val('form-checkout__cardholderName'), cpf:val('form-checkout__identificationNumber'), telefone:val('form-checkout__phone')})})
+        body:JSON.stringify({pacote:pacote, email:val('form-checkout__cardholderEmail'), nome:val('form-checkout__cardholderName'), cpf:val('form-checkout__identificationNumber'), telefone:val('form-checkout__phone'), fbp:fbp, fbc:fbc})})
         .then(function(r){return r.json();})
         .then(function(d){
           if(!d.id||!d.qr_code_base64){ console.error(d); btn.disabled=false; btn.textContent='Gerar Pix'; showErr('erro-pix','Não foi possível gerar o Pix. Confira os dados.'); return; }
@@ -300,7 +306,7 @@
             fetch('/api/criar-cartao',{method:'POST',headers:{'Content-Type':'application/json'},
               body:JSON.stringify({ token:d.token, payment_method_id:d.paymentMethodId, issuer_id:d.issuerId,
                 email:d.cardholderEmail, identificationType:d.identificationType, identificationNumber:d.identificationNumber,
-                pacote:pacote, nome:val('form-checkout__cardholderName'), telefone:val('form-checkout__phone') })})
+                cpf:d.identificationNumber, pacote:pacote, nome:val('form-checkout__cardholderName'), telefone:val('form-checkout__phone'), fbp:fbp, fbc:fbc })})
               .then(function(r){return r.json();})
               .then(function(resp){
                 if (resp.status==='approved' || resp.status==='in_process' || resp.status==='pending') {

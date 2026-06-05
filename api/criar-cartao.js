@@ -10,12 +10,16 @@ export default async function handler(req, res) {
   const {
     token, payment_method_id, issuer_id,
     email, identificationType = 'CPF', identificationNumber,
-    pacote = 'essencial', nome, telefone
+    pacote = 'essencial', nome, telefone, cpf, fbp, fbc
   } = body || {};
 
   if (!token || !email || !payment_method_id) {
     return res.status(400).json({ error: 'dados do cartão incompletos' });
   }
+
+  // Dados do navegador do comprador (este endpoint é chamado pelo browser) p/ CAPI
+  const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  const ua = String(req.headers['user-agent'] || '');
 
   const itens = {
     essencial: { title: '+300 Dinâmicas Bíblicas',                       price: 14.90 },
@@ -33,7 +37,7 @@ export default async function handler(req, res) {
     description: item.title,
     external_reference: pacote,
     notification_url: `${base}/api/webhook`,
-    metadata: { nome: nome || '', telefone: String(telefone || '').replace(/\D/g, ''), email: String(email || '').trim().toLowerCase() },
+    metadata: { nome: nome || '', telefone: String(telefone || '').replace(/\D/g, ''), email: String(email || '').trim().toLowerCase(), cpf: String(cpf || identificationNumber || '').replace(/\D/g, ''), fbp: fbp || '', fbc: fbc || '', ip: ip, ua: ua },
     payer: {
       email: email,
       identification: { type: identificationType, number: String(identificationNumber || '').replace(/\D/g, '') }

@@ -96,11 +96,19 @@ async function enviarCapi(p) {
   const meta = p.metadata || {};
   const email = String(meta.email || (p.payer && p.payer.email) || '').trim().toLowerCase();
   const fone = String(meta.telefone || '').replace(/\D/g, '');
+  const cpf = String(meta.cpf || '').replace(/\D/g, '');
   const valor = p.transaction_amount || (p.external_reference === 'combo' ? 19.90 : 14.90);
 
   const user_data = {};
+  // Hasheados (SHA-256 lowercase+trim)
   if (email) user_data.em = [sha256(email)];
   if (fone) user_data.ph = [sha256('55' + fone)];
+  if (cpf) user_data.external_id = [sha256(cpf)];
+  // NÃO hasheados (texto cru) — Meta rejeita se hashear
+  if (meta.ip) user_data.client_ip_address = meta.ip;
+  if (meta.ua) user_data.client_user_agent = meta.ua;
+  if (meta.fbp) user_data.fbp = meta.fbp;
+  if (meta.fbc) user_data.fbc = meta.fbc;
 
   // URL base do próprio site (Vercel injeta o host) — usada no event_source_url
   const base = process.env.SITE_URL || 'https://SEU-DOMINIO.vercel.app';
