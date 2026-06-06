@@ -97,7 +97,7 @@ async function enviarCapi(p) {
   const email = String(meta.email || (p.payer && p.payer.email) || '').trim().toLowerCase();
   const fone = String(meta.telefone || '').replace(/\D/g, '');
   const cpf = String(meta.cpf || '').replace(/\D/g, '');
-  const valor = p.transaction_amount || (p.external_reference === 'combo' ? 19.90 : 14.90);
+  const valor = p.transaction_amount || (p.external_reference === 'combo' ? 14.90 : 9.90);
 
   const user_data = {};
   // Hasheados (SHA-256 lowercase+trim)

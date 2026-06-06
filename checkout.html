@@ -182,7 +182,7 @@
     var PUBLIC_KEY = 'APP_USR-b378d6c5-ccdd-4c32-b92b-b59f0ab524e9';
     var params = new URLSearchParams(location.search);
     var pacote = params.get('pacote') === 'combo' ? 'combo' : 'essencial';
-    var preco  = pacote === 'combo' ? 19.90 : 14.90;
+    var preco  = pacote === 'combo' ? 14.90 : 9.90;
     var nomePacote = pacote === 'combo' ? 'Pacote Completo — Dinâmicas Bíblicas + 7 Bônus' : 'Essencial — +300 Dinâmicas Bíblicas';
     var precoStr = preco.toFixed(2).replace('.', ',');
 

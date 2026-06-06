@@ -17,8 +17,8 @@ export default async function handler(req, res) {
   const ua = String(req.headers['user-agent'] || '');
 
   const itens = {
-    essencial: { title: '+300 Dinâmicas Bíblicas',                       price: 14.90 },
-    combo:     { title: 'Pacote Completo — Dinâmicas Bíblicas + 7 Bônus', price: 19.90 }
+    essencial: { title: '+300 Dinâmicas Bíblicas',                       price: 9.90 },
+    combo:     { title: 'Pacote Completo — Dinâmicas Bíblicas + 7 Bônus', price: 14.90 }
   };
   const item = itens[pacote] || itens.essencial;
   const base = `https://${req.headers['x-forwarded-host'] || req.headers.host}`;
