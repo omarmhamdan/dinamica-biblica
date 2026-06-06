@@ -45,7 +45,7 @@ async function enviarEmail(p) {
     combo:     process.env.DRIVE_URL_COMBO
   };
   const url = links[p.external_reference] || links.essencial;
-  const nomePacote = p.external_reference === 'combo' ? 'Pacote Completo (Dinâmicas + 7 Bônus)' : '+300 Dinâmicas Bíblicas';
+  const nomePacote = p.external_reference === 'combo' ? 'Premium (Dinâmicas + 7 Bônus)' : '+300 Dinâmicas Bíblicas';
 
   const html = `
   <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1a1f36">

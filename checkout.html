@@ -183,7 +183,7 @@
     var params = new URLSearchParams(location.search);
     var pacote = params.get('pacote') === 'combo' ? 'combo' : 'essencial';
     var preco  = pacote === 'combo' ? 14.90 : 9.90;
-    var nomePacote = pacote === 'combo' ? 'Pacote Completo — Dinâmicas Bíblicas + 7 Bônus' : 'Essencial — +300 Dinâmicas Bíblicas';
+    var nomePacote = pacote === 'combo' ? 'Premium — Dinâmicas Bíblicas + 7 Bônus' : 'Básico — +300 Dinâmicas Bíblicas';
     var precoStr = preco.toFixed(2).replace('.', ',');
 
     // ---- Meta: fbp/fbc (melhora qualidade de correspondência da CAPI) ----

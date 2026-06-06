@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
   const itens = {
     essencial: { title: '+300 Dinâmicas Bíblicas',                       price: 9.90 },
-    combo:     { title: 'Pacote Completo — Dinâmicas Bíblicas + 7 Bônus', price: 14.90 }
+    combo:     { title: 'Premium — Dinâmicas Bíblicas + 7 Bônus', price: 14.90 }
   };
   const item = itens[pacote] || itens.essencial;
 
